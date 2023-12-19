@@ -1,121 +1,123 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
+import Header from './components/Header'
+import Timer from './components/Timer'
+import Points from './components/Points'
+import BackCard from './components/BackCard'
+import Card from './components/Card'
 
 
-function MyComponent(props) {
+
+
+function App() {
+  const [data, setData] = useState();
+  const [cards, setCards] = useState([]);
+  const [points, setPoints] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
+  const [status, setStatus] = useState('playing');
+  const [seconds, setSeconds] = useState(0);
+  let count = 0;
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSeconds(prevSeconds => prevSeconds + 1);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const fetcData = async () => {
+
+      try {
+        const response = await fetch('https://ddragon.leagueoflegends.com/cdn/13.24.1/data/en_US/champion.json');
+        const result = await response.json();
+        setData(result.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetcData();
+  },[]);
+
+  useEffect(() => { 
+    let newCards = []; 
+    if(data || status=='losed'){
+    let count = 0;
+    while( count  < 8 ){
+      let keys = Object.keys(data);
+      let champ = data[keys[ keys.length * Math.random() << 0]]
+      newCards.push({id:count, name: champ.name , image: champ.image.full, selected:false});
+      count++;
+      setStatus('playing')
+    }
+    
+    setCards(newCards);
+  }
+  }, [data, status]);
+
+
+
+  function shuffleCards(){
+    setCards((p) => {
+      const newOrder = p.slice();
+      for (let i = newOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newOrder[i], newOrder[j]] = [newOrder[j], newOrder[i]];
+      }
+
+      return newOrder;
+    });
+    
+  }
+
+  function showCard(id){
+    
+    setCards(cards.map((card) => {
+      if(card.id == id && card.selected === false){
+        setPoints(p=>p+1)
+        return {...card, selected:true}
+        
+      }else if(card.id == id && card.selected === true){
+        if(points>bestScore){
+          setBestScore(points);
+        }
+        setPoints(0);
+        setStatus('losed');
+        setSeconds(0);
+        return {...card};
+      }
+      else{
+        return {...card}
+      }
+    }));
+    
+    shuffleCards();
+    
+    
+  }
+
   return (
-    <div className="bg-neutral-800 flex flex-col items-stretch pb-12">
-      <div className="justify-between bg-stone-950 flex w-full gap-5 px-20 py-7 items-start max-md:max-w-full max-md:flex-wrap max-md:px-5">
-        <div className="justify-center items-center flex gap-0.5 mt-1.5">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/40a100d4d0bcb34e9284e5d98bf3e1e792a6189c424be48b5a05382e372d72ce?"
-            className="aspect-square object-contain object-center w-[18px] fill-sky-500 overflow-hidden shrink-0 max-w-full my-auto"
-          />
-          <div className="text-white text-xl font-semibold capitalize self-stretch grow whitespace-nowrap">
-            CARD GAME
-          </div>
-        </div>
-        <div className="items-stretch self-stretch flex justify-between gap-1.5">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/86b9a10021b4653c8349342f2130dc420a833e58a264fb8ac616767c83a70ec8?"
-            className="aspect-square object-contain object-center w-[30px] overflow-hidden shrink-0 max-w-full"
-          />
-          <div className="text-white text-xl font-semibold capitalize grow whitespace-nowrap mt-1.5 self-start">
-            Repository
-          </div>
-        </div>
-      </div>
+
+    
+    <div className="bg-neutral-800 flex flex-col items-stretch pb-12 min-h-screen">
+      <Header/>
       <div className="self-center flex w-full max-w-[1030px] flex-col mt-20 mb-9 items-start max-md:max-w-full max-md:mt-10">
-        <div className="items-stretch flex gap-3">
-          <div className="text-white text-3xl font-semibold capitalize grow whitespace-nowrap">
-            Points:{" "}
-          </div>
-          <div className="text-white text-3xl font-semibold capitalize whitespace-nowrap">
-            0
-          </div>
-        </div>
-        <div className="items-stretch flex justify-between gap-5">
-          <div className="text-white text-3xl font-semibold capitalize">
-            Time:{" "}
-          </div>
-          <div className="text-white text-3xl font-semibold capitalize">0</div>
-        </div>
-        <div className="w-[865px] max-w-full mt-14 self-end max-md:mt-10">
-          <div className="gap-5 flex max-md:flex-col max-md:items-stretch max-md:gap-0">
-            <div className="flex flex-col items-stretch w-3/12 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col items-stretch w-3/12 ml-5 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col items-stretch w-3/12 ml-5 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col items-stretch w-3/12 ml-5 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="w-[865px] max-w-full mt-10 self-end max-md:mt-10">
-          <div className="gap-5 flex max-md:flex-col max-md:items-stretch max-md:gap-0">
-            <div className="flex flex-col items-stretch w-3/12 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col items-stretch w-3/12 ml-5 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col items-stretch w-3/12 ml-5 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-            <div className="flex flex-col items-stretch w-3/12 ml-5 max-md:w-full max-md:ml-0">
-              <img
-                loading="lazy"
-                srcSet="..."
-                className="aspect-[0.71] object-contain object-center w-full overflow-hidden shrink-0 grow flex-1 max-md:mt-10"
-              />
-            </div>
-          </div>
+        <Points points={points} bestScore={bestScore}/>
+        <Timer time={seconds}/>        
+      </div>
+      <div className="flex items-center justify-center ">
+        <div className="grid grid-cols-4 gap-4">
+        {cards.length!==0 ? cards.map((card) => {  
+          if(count<8){
+            return( <Card id={card.id} key={card.id} handleClick={showCard} name={card.name} image={card.image}/>);
+          }
+          count++;
+            }) : <h1 className='text-white font-bold text-3xl'>Loading Cards...</h1>}
         </div>
       </div>
     </div>
-  );
-}
-
-function App() {
-  return (
-    <>
-      <MyComponent/>
-    </>
   )
 }
 
