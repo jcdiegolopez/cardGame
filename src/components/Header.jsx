@@ -1,6 +1,7 @@
 export default function Header(){
 
     return (
+        <a href="https://github.com/jcdiegolopez/cardGame">
         <div className="justify-between bg-stone-950 flex w-full gap-5 px-20 py-7 items-start max-md:max-w-full max-md:flex-wrap max-md:px-5">
         <div className="justify-center items-center flex gap-0.5 mt-1.5">
           <img
@@ -23,5 +24,6 @@ export default function Header(){
           </div>
         </div>
       </div>
+      </a>
     );
 }
