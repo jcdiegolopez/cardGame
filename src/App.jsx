@@ -45,7 +45,7 @@ function App() {
     let newCards = []; 
     if(data || status=='losed'){
     let count = 0;
-    while( count  < 8 ){
+    while( count  < 20 ){
       let keys = Object.keys(data);
       let champ = data[keys[ keys.length * Math.random() << 0]]
       newCards.push({id:count, name: champ.name , image: champ.image.full, selected:false});
@@ -109,11 +109,13 @@ function App() {
       </div>
       <div className="flex items-center justify-center ">
         <div className="grid grid-cols-4 gap-4">
-        {cards.length!==0 ? cards.map((card) => {  
-          if(count<8){
+        {cards.length!==0 ? cards.map((card) => {
+          console.log(count)
+          count++;  
+          if(count<9){
             return( <Card id={card.id} key={card.id} handleClick={showCard} name={card.name} image={card.image}/>);
           }
-          count++;
+          
             }) : <h1 className='text-white font-bold text-3xl'>Loading Cards...</h1>}
         </div>
       </div>
